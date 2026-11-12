@@ -1,0 +1,26 @@
+node_modules/
+.aistudio/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Python virtual environments, bytecode, and test artifacts
+venv/
+.venv/
+backend/venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.db

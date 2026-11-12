@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: aquawatch-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE_NAME:-aquawatch_db}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - aquawatch-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: aquawatch-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aquawatch_db
+      POSTGRES_USER: aquawatch_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aquawatch_admin -d aquawatch_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aquawatch-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: aquawatch-backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://aquawatch_admin:${DB_PASSWORD}@postgres:5432/aquawatch_db
+      MONGODB_URI: mongodb://mongo:27017/aquawatch_db
+      MONGODB_DATABASE_NAME: ${MONGODB_DATABASE_NAME:-aquawatch_db}
+      JWT_SECRET: ${JWT_SECRET}
+      SIMULATION_INTERVAL_SECONDS: 4
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - aquawatch-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    container_name: aquawatch-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:8080"
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+    networks:
+      - aquawatch-network
+
+volumes:
+  mongo_data:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  aquawatch-network:
+    driver: bridge

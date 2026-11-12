@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: aquawatch-backend
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DATABASE_NAME
+        value: aquawatch_db
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://aquawatch-frontend.onrender.com,http://localhost:5173,http://127.0.0.1:5173
+
+  - type: static
+    name: aquawatch-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: aquawatch-backend
+          property: host
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -1,0 +1,6 @@
+{
+  "name": "AquaWatch - Water Quality Monitoring & Alert Dashboard",
+  "description": "Production-grade water quality monitoring dashboard with real-time sensor telemetry simulation, automated multi-level threshold alerts, station management, and DevOps deployment specifications.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
