@@ -21,10 +21,7 @@ services:
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: aquawatch-backend
-          property: host
+        value: https://aquawatch-backend-gg58.onrender.com
     routes:
       - type: rewrite
         source: /*

@@ -144,10 +144,10 @@ Set `MONGODB_URI` as a secret environment variable in Render and set `MONGODB_DA
 - Name: `aquawatch-frontend`
 - Build command: `npm install && npm run build`
 - Publish directory: `dist`
-- `VITE_API_BASE_URL`: populated by the Blueprint from the backend web-service host
+- `VITE_API_BASE_URL`: the full public backend URL (for example `https://aquawatch-backend-gg58.onrender.com`)
 - Unknown routes rewrite to `/index.html`
 
-Vite embeds `VITE_API_BASE_URL` at build time. If you change the backend URL or a service name, update the frontend environment variable and rebuild the static site. This variable is public by design; never put database credentials or private keys in any `VITE_*` variable.
+Vite embeds `VITE_API_BASE_URL` at build time. If you change the backend URL, update the Blueprint value and rebuild the static site. This variable is public by design; never put database credentials or private keys in any `VITE_*` variable.
 
 ## API reference
 
